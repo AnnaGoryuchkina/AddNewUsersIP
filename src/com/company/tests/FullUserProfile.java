@@ -43,9 +43,9 @@ public class FullUserProfile {
     private int id=0;
     private String dropped = "0";
     private String guid = RandomGUID.createGUID();
-    private String pwd = "NewIPUser2016";
+    private String pwd = "pwd";
     private String added = "0";
-    private String pwdHash = "263c6aff599169d7bbe21601ab6ae";
+    private String pwdHash = "pwdHash";
     private String login = null;
 
     FullUserProfile(){

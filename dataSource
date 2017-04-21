@@ -1,4 +1,4 @@
 db_driver                               = oracle.jdbc.driver.OracleDriver
-db_url                                  = jdbc:oracle:thin:@10.7.124.101:1521:info
-db_user                                 = metasonic
-db_password                             = metasonic
+db_url                                  = jdbc:oracle:thin:@host:port:sid
+db_user                                 = user
+db_password                             = pwd

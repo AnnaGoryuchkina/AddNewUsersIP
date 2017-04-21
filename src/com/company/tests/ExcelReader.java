@@ -14,8 +14,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelReader {
 
-    private static String fileDirection = "C:\\Users\\AGoryuchkina\\Desktop\\Пользователи ЦПиМС  Орел.xlsx";
-    private static String firstCell = "ФИО нового пользователя";
+    private static String fileDirection = "C:\\some_name.xlsx";
+    private static String firstCell = "start cell";
 
     public static List<UserProfile> readExcel() {
         List<UserProfile> users = new ArrayList<>();
@@ -27,12 +27,12 @@ public class ExcelReader {
             Iterator<Row> rowIterator = datatypeSheet.iterator();
 
             /*
-                Проверяем все ячейки на наличие нужной нам: "ФИО нового пользователя".
+                Проверяем все ячейки на наличие нужной нам стартовой строки.
             */
             int rowNum=0;
             int startRow=1000;
             int startColumn =0;
-            List<String> keys = new ArrayList<>(); //set не подойдет, так как нужно сохранять последовательность. содержит в себе ключи - названия столбцов
+            List<String> keys = new ArrayList<>();
             boolean isNeeded = false; //атрибут помогает отслеживать заголовки столбцов
 
             while (rowIterator.hasNext()) {
@@ -44,7 +44,7 @@ public class ExcelReader {
                     Cell currentCell = cellIterator.next();
                     if (currentCell.getStringCellValue().equals(firstCell)) {
                         startRow = rowNum;
-                        startColumn = cellNum; //currentCell.getColumnIndex; - не работает, почему? - разобраться
+                        startColumn = cellNum;
                         isNeeded = true;
                     }
                     if (rowNum > startRow + 1) {
@@ -85,7 +85,7 @@ public class ExcelReader {
 
         while (rowIterator.hasNext()) {
             Row currentRow = rowIterator.next();
-            if (currentRow.getRowNum() - 1 > startRow ) { //currentRow.getRowNum() - 1  - разобраться, startRow + 1  - тк две строки наименования столбцов
+            if (currentRow.getRowNum() - 1 > startRow ) {
                 //System.out.println(currentRow.getRowNum());
                 UserProfile user = new UserProfile();
 

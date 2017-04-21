@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ExcelWriter {
 
-    private static final String FILE_NAME = "C:\\Users\\AGoryuchkina\\Desktop\\resultIP.xlsx";
+    private static final String FILE_NAME = "C:\\some_name.xlsx";
 
     public static void writeFile(List<FullUserProfile> users) throws NoSuchFieldException, IllegalAccessException {
         Workbook workbook = new XSSFWorkbook();

@@ -14,11 +14,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelReader {
 
-    private static String fileDirection = "C:\\some_name.xlsx";
-    private static String firstCell = "start cell";
+    //private static String fileDirection =
+    //        "C:\\Users\\AGoryuchkina\\Desktop\\check1.xlsx";
+    private static String firstCell = "ФИО нового пользователя";
 
-    public static List<UserProfile> readExcel() {
-        List<UserProfile> users = new ArrayList<>();
+    public static List<FullUserProfile> readExcel(String fileDirection) {
+        List<FullUserProfile> users = new ArrayList<>();
 
         try {
             FileInputStream excelFile = new FileInputStream(new File(fileDirection));
@@ -27,12 +28,12 @@ public class ExcelReader {
             Iterator<Row> rowIterator = datatypeSheet.iterator();
 
             /*
-                Проверяем все ячейки на наличие нужной нам стартовой строки.
+                Проверяем все ячейки на наличие нужной нам: "ФИО нового пользователя".
             */
             int rowNum=0;
             int startRow=1000;
             int startColumn =0;
-            List<String> keys = new ArrayList<>();
+            List<String> keys = new ArrayList<>(); //set не подойдет, так как нужно сохранять последовательность. содержит в себе ключи - названия столбцов
             boolean isNeeded = false; //атрибут помогает отслеживать заголовки столбцов
 
             while (rowIterator.hasNext()) {
@@ -42,10 +43,13 @@ public class ExcelReader {
 
                 while (cellIterator.hasNext()) {
                     Cell currentCell = cellIterator.next();
-                    if (currentCell.getStringCellValue().equals(firstCell)) {
-                        startRow = rowNum;
-                        startColumn = cellNum;
-                        isNeeded = true;
+                    //System.out.println(currentCell);
+                    if (currentCell.getCellType() != Cell.CELL_TYPE_NUMERIC) { // убираем возможность ошибки с числвым значением
+                        if (currentCell.getStringCellValue().equals(firstCell)) {
+                            startRow = rowNum;
+                            startColumn = cellNum; //currentCell.getColumnIndex; - не работает, почему? - разобраться
+                            isNeeded = true;
+                        }
                     }
                     if (rowNum > startRow + 1) {
                         isNeeded = false;
@@ -62,7 +66,7 @@ public class ExcelReader {
             //Разобраться, как из увидеть и посчитать, чтобы можно было находить начальную координату таблицы,
             //и от нее начинать "читать" значения таблицы
 
-            users = getInput(startRow, startColumn);
+            users = getInput(startRow, startColumn, fileDirection);
             //System.out.println(keys);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -74,8 +78,8 @@ public class ExcelReader {
 
 
 
-    private static List<UserProfile> getInput(int startRow, int startColumn){
-        List<UserProfile> users = new ArrayList<>();
+    private static List<FullUserProfile> getInput(int startRow, int startColumn, String fileDirection){
+        List<FullUserProfile> users = new ArrayList<>();
         try {
             FileInputStream excelFile = new FileInputStream(new File(fileDirection));
             Workbook workbook = new XSSFWorkbook(excelFile);
@@ -85,14 +89,15 @@ public class ExcelReader {
 
         while (rowIterator.hasNext()) {
             Row currentRow = rowIterator.next();
-            if (currentRow.getRowNum() - 1 > startRow ) {
+            if (currentRow.getRowNum() - 1 > startRow ) { //currentRow.getRowNum() - 1  - разобраться, startRow + 1  - тк две строки наименования столбцов
                 //System.out.println(currentRow.getRowNum());
-                UserProfile user = new UserProfile();
+                FullUserProfile user = new FullUserProfile(); //необработанный пользователь
 
                 Cell nameCell = currentRow.getCell(0 + startColumn); //add startColumn if table starts not from the left border
                 user.setName(nameCell.getStringCellValue());
 
                 Cell emailCell = currentRow.getCell(1+ startColumn);
+                //System.out.println(currentRow.getRowNum());
                 user.setEmail(emailCell.getStringCellValue());
 
                 Cell ufpsCell = currentRow.getCell(2+ startColumn);
@@ -145,9 +150,11 @@ public class ExcelReader {
         return users;
     }
 
-    public static boolean formatStringToBoolean(Cell cell){
+    public static int formatStringToBoolean(Cell cell){
         if (cell == null || cell.toString() == ""){
-            return false;
-        } else return true;
+            return 0;
+        } else return 1;
     }
+
+    //TO-DO установить возможность обрабатывать конец файла
 }

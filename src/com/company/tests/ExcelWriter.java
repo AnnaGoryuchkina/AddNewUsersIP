@@ -1,5 +1,6 @@
 package com.company.tests;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -18,7 +19,7 @@ public class ExcelWriter {
 
     private static final String FILE_NAME = "C:\\some_name.xlsx";
 
-    public static void writeFile(List<FullUserProfile> users) throws NoSuchFieldException, IllegalAccessException {
+    public static void writeFile(List<FullUserProfile> users, String fileDirection) throws NoSuchFieldException, IllegalAccessException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Пользователи");
 
@@ -40,7 +41,7 @@ public class ExcelWriter {
             }
         }
         try {
-            FileOutputStream outputStream = new FileOutputStream(FILE_NAME);
+            FileOutputStream outputStream = new FileOutputStream(fileDirection);
             workbook.write(outputStream);
             outputStream.close();
         } catch (FileNotFoundException e) {
@@ -50,6 +51,24 @@ public class ExcelWriter {
         }
 
         System.out.println("Done");
+    }
+
+    public static void writeSQLQueryForOPSResp(FullUserProfile user) throws NoSuchFieldException, IllegalAccessException {
+        String indexesOPS=null;
+       if(user.getOps_resp() == 1){
+         if (user.getIndexs_OPS() != null || user.getIndexs_OPS() != ""){
+             indexesOPS = user.getIndexs_OPS();
+
+       String[] parts = indexesOPS.split(", |,|,  |;| ; |; ");
+        System.out.print("update ruspost_office_card set office_manager = '" + user.getName()+"', office_email = '" +
+                user.getEmail()+"' where office_index in (");
+                for (int i = 0; i < parts.length -1 ; i++){
+                    System.out.print(parts[i] + ", ");
+        }
+        System.out.print(parts[parts.length-1]+");");
+             System.out.println("");
+        }
+    }
     }
 
 
@@ -74,7 +93,7 @@ public class ExcelWriter {
         Field requset_resp = aClass.getDeclaredField("requset_resp");
         //Field indexs_OPS = aClass.getDeclaredField("indexs_OPS");
         Field dropped = aClass.getDeclaredField("dropped");
-        Field ID = aClass.getDeclaredField("ID");
+        Field id = aClass.getDeclaredField("id");
         Field guid = aClass.getDeclaredField("guid");
         Field pwd = aClass.getDeclaredField("pwd");
         Field pwdHash = aClass.getDeclaredField("pwdHash");
@@ -83,7 +102,7 @@ public class ExcelWriter {
         Field operator = aClass.getDeclaredField("operator");
 
         List<Field> fields = new ArrayList<>();
-        fields.add(ID);
+        fields.add(id);
         fields.add(dropped);
         //fields.add(ufps); // не забыть убрать УФПС если отмечен Почтамт
         //fields.add(postamt);
@@ -97,9 +116,9 @@ public class ExcelWriter {
         fields.add(operator);
         fields.add(postamt_controler);
         fields.add(ufps_controler);
-        fields.add(postamt_analyst);
+        //fields.add(postamt_analyst);
         fields.add(ufps_analyst);
-        fields.add(ops_resp);
+        //fields.add(ops_resp);
         fields.add(requset_resp);
         fields.add(email);
         fields.add(added);

@@ -40,12 +40,18 @@ public class FullUserProfile {
     private int requset_resp;
     private String indexs_OPS = null;
     private static int ID; // увеличичается с каждым новым экземпляром
+    private int id=0;
     private String dropped = "0";
     private String guid = RandomGUID.createGUID();
     private String pwd = "NewIPUser2016";
     private String added = "0";
     private String pwdHash = "263c6aff599169d7bbe21601ab6ae";
     private String login = null;
+
+    FullUserProfile(){
+        ID++;
+        id=ID;
+    }
 
     public String getLogin() {
         return login;

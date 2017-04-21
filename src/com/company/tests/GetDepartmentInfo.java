@@ -76,12 +76,16 @@ public class GetDepartmentInfo {
     public static List<String> getIndexes(){ return indexes; }
 
     public static String returnGroupName(String index) {
-        for (String dep : departments){
-            if (getIndexFromGroupName(dep).equals(getIndexFromGroupName(index)))
-                return dep;
-            return "No group with given index: " + index;
+        String depName = "";
+        for (String dep: departments) {
+            String checkedIndex = getIndexFromGroupName(dep);
+            //System.out.println(checkedIndex);
+            if (checkedIndex.equals(index)) {
+                depName = dep;
+                break;
+            }
         }
-        return null;
+        return depName;
     }
 
     public static String getIndexFromGroupName(String name){
@@ -90,7 +94,7 @@ public class GetDepartmentInfo {
         Matcher m = p.matcher(name);
         if (m.find()){
             index = m.group();
-        }
+        } else index = "0";
         return index;
     }
 }

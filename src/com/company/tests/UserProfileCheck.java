@@ -6,14 +6,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UserProfileCheck {
-    UserProfile user = new UserProfile();
+    //UserProfile user = new UserProfile();
     FullUserProfile fullUser = new FullUserProfile();
-    static List<FullUserProfile> fullUsers = new ArrayList<>();
+    static List<FullUserProfile> fullUsers = new ArrayList<>(); // обработанный пользователь
+
     List<String> departments = GetDepartmentInfo.departments;
     List<String> indexes = GetDepartmentInfo.indexes;
 
-    UserProfileCheck(UserProfile user){
-        this.user = user;
+    UserProfileCheck(FullUserProfile user){
+        this.fullUser = user;
     }
 
     public void check() throws Exception {
@@ -23,23 +24,20 @@ public class UserProfileCheck {
          */
         Pattern p_name = Pattern.compile(Constants.USER_NAME);
         //Pattern p_name = Pattern.compile("^([А-я]+\\s+){2}[А-я]+\\s*$");
-        Matcher m_name = p_name.matcher(user.getName());
-        if (m_name.matches()){
-            fullUser.setName(user.getName());
-        } else {
-            System.out.println("Problem with name.");
-            throw new Exception();
+        Matcher m_name = p_name.matcher(fullUser.getName());
+        if (m_name.matches()){}
+        else {
+            System.out.println("Problem with name: " + fullUser.getName());
         }
 
         /*
         Check email
          */
         Pattern p_mail = Pattern.compile(Constants.EMAIL_P);
-        Matcher m_mail = p_mail.matcher(user.getEmail());
-        if (m_mail.matches()){ fullUser.setEmail(user.getEmail());}
+        Matcher m_mail = p_mail.matcher(fullUser.getEmail());
+        if (m_mail.matches()){}
         else {
-            System.out.println("Problem with email.");
-            throw new Exception();
+            System.out.println("Problem with email: " + fullUser.getEmail());
         }
 
         /*
@@ -49,14 +47,14 @@ public class UserProfileCheck {
         boolean postamtIsSet = false;
 
         Pattern p_ufps = Pattern.compile(Constants.UFPS_P);
-        Matcher m_ufps = p_ufps.matcher(user.getUfps());
+        Matcher m_ufps = p_ufps.matcher(fullUser.getUfps());
         if (m_ufps.matches()) {
             /*
             Проверяем напрямую имя департамента полностью
              */
             for (String one : departments) {
-                if (one.equals(user.getUfps())) {
-                    fullUser.setUfps(user.getUfps());
+                if (one.equals(fullUser.getUfps())) {
+                    fullUser.setUfps(fullUser.getUfps());
                     ufpsIsSet = true;
                     break;
                 }
@@ -67,7 +65,8 @@ public class UserProfileCheck {
              */
             if (ufpsIsSet == false) {
                 for (String index : indexes) {
-                    if (GetDepartmentInfo.getIndexFromGroupName(user.getUfps()).equals(index)) {
+                    if (GetDepartmentInfo.getIndexFromGroupName(fullUser.getUfps()).equals(index)) {
+                        //System.out.println("Index finding: " + user.getName() + " index: " + index);
                         fullUser.setUfps(GetDepartmentInfo.returnGroupName(index));
                         ufpsIsSet = true;
                         break;
@@ -75,21 +74,21 @@ public class UserProfileCheck {
                 }
             }
             if (ufpsIsSet == false) {
-                System.out.println("No UFPS department matches with the system for user: " + user.getName());
+                System.out.println("No UFPS department matches with the system for user: " + fullUser.getName());
             }
         }
 
 
-                if (user.getPostamt() != null) {
+                if (fullUser.getPostamt() != null) {
                     Pattern p_postamt = Pattern.compile(Constants.POSTAMT_P);
-                    Matcher m_postamt = p_postamt.matcher(user.getPostamt());
+                    Matcher m_postamt = p_postamt.matcher(fullUser.getPostamt());
                     if (m_postamt.matches()) {
                         /*
                         Check department names
                          */
                         for (String one : departments) {
-                            if (one.equals(user.getPostamt())) {
-                                fullUser.setPostamt(user.getPostamt());
+                            if (one.equals(fullUser.getPostamt())) {
+                                fullUser.setPostamt(fullUser.getPostamt());
                                 postamtIsSet = true;
                                 break;
                             }
@@ -101,7 +100,7 @@ public class UserProfileCheck {
 
                         if (postamtIsSet == false) {
                             for (String index : indexes) {
-                                if (GetDepartmentInfo.getIndexFromGroupName(user.getPostamt()).equals(index)) {
+                                if (GetDepartmentInfo.getIndexFromGroupName(fullUser.getPostamt()).equals(index)) {
                                     fullUser.setPostamt(GetDepartmentInfo.returnGroupName(index));
                                     postamtIsSet = true;
                                     break;
@@ -109,7 +108,7 @@ public class UserProfileCheck {
                             }
                         }
                         if (postamtIsSet == false) {
-                            System.out.println("No Postamt department matches with the system for user: " + user.getName());
+                            System.out.println("No Postamt department matches with the system for user: " + fullUser.getName());
                         }
 
                     }
@@ -117,51 +116,57 @@ public class UserProfileCheck {
                 /*
                 Cетаем поле Department который в результате пойдет в группу.
                  */
-                if (fullUser.getPostamt() != null){
+                if (fullUser.getPostamt() == null || fullUser.getPostamt().equals("")){
+                    fullUser.setDepartment(fullUser.getUfps());
+                } else {
                     fullUser.setDepartment(fullUser.getPostamt());
-                } else {fullUser.setDepartment(fullUser.getUfps());}
+                }
 
                 /*
                 Check roles
                  */
 
-                List<Boolean> roles = new ArrayList<>(); //есть смысл подумать над map
-                roles.add(user.isUfps_operator());
-                roles.add(user.isUfps_controler());
-                roles.add(user.isUfps_analyst());
-                roles.add(user.isPostamt_operator());
-                roles.add(user.isPostamt_controler());
-                roles.add(user.isPostamt_analyst());
-                roles.add(user.isOps_resp());
-                roles.add(user.isRequset_resp());
+                /*List<int> roles = new ArrayList<>(); //есть смысл подумать над map
+                roles.add(fullUser.getUfps_operator());
+                roles.add(fullUser.getUfps_controler());
+                roles.add(fullUser.getUfps_analyst());
+                roles.add(fullUser.getPostamt_operator());
+                roles.add(fullUser.getPostamt_controler());
+                roles.add(fullUser.getPostamt_analyst());
+                roles.add(fullUser.getOps_resp());
+                roles.add(fullUser.getOps_resp());*/
 
 
+                /*
+                Проверка условий для ролей, индексов ОПС.
+                 */
                 boolean con1 = false;
                 boolean con2 = false;
                 boolean con3 = false;
 
                 //роли УФПС и Почтамта не могут пересекаться
-                if ((roles.get(0) == true || roles.get(1)== true || roles.get(2)== true)
-                        && (roles.get(3)== true || roles.get(4)== true || roles.get(5)== true)) {
-                    System.out.println("Roles for ufps and for postamt intersect - wrong!!!  for user: " + user.getName());
+                if ((fullUser.getUfps_operator() == 1 || fullUser.getUfps_controler() ==1 || fullUser.getUfps_analyst() ==1)
+                        && (fullUser.getPostamt_operator()==1 || fullUser.getPostamt_controler()==1 || fullUser.getPostamt_analyst()==1)) {
+                    System.out.println("Roles for ufps and for postamt intersect - wrong!!!  for user: " + fullUser.getName());
                 } else {
                     con1 = true;
                 }
                 //если указаны роли Почтамта, то должен быть указан Почтамт
-                if (user.getPostamt() == null && (roles.get(3)== true || roles.get(4)== true || roles.get(5)== true)) {
-                    System.out.println("User with postamt role and without postamt - wrong!!!  for user: " + user.getName());
+                if (fullUser.getPostamt() == null &&
+                        (fullUser.getPostamt_operator()==1 || fullUser.getPostamt_controler()==1 || fullUser.getPostamt_analyst()==1)) {
+                    System.out.println("User with postamt role and without postamt - wrong!!!  for user: " + fullUser.getName());
                 } else {
                     con2 = true;
                 }
 
-                if (roles.get(6) == true && user.getIndexs_OPS() == null) {
+                if (fullUser.getOps_resp() == 1 && fullUser.getIndexs_OPS().equals("")) {
                     System.out.println("User has OPS responsible role, " +
-                            "but no OPS indexes(or indexes without OPS resp role)  for user: " + user.getName());
+                            "but no OPS indexes(or indexes without OPS resp role)  for user: " + fullUser.getName());
                 } else {
                     con3 = true;
                 }
 
-                if (con1 == true && con2 == true && con3 == true) {
+                /*if (con1 == true && con2 == true && con3 == true) {
                     for (int i = 0; i < roles.size(); i++) {
                         if (roles.get(i) == true) {
                             switch (i) {
@@ -192,17 +197,26 @@ public class UserProfileCheck {
                             }
                         }
                     }
-                }
+                }*/
 
-                if (user.isUfps_operator() || user.isPostamt_operator()){
+                /*
+        В экселе у нас нет разделения на операторов УФПС или Почтамтов, поэтому объединяем их в общий атрибут - operator
+         */
+                if (fullUser.getUfps_operator() == 1 || fullUser.getPostamt_operator() ==1){
                     fullUser.setOperator(1);
                 } else fullUser.setOperator(0);
+        /*
+        Разделение на аналитиков разного уровня тоже нет, объединяем в одну роль - DEPARTMENT_ANALYST
+         */
+        if (fullUser.getPostamt_analyst() ==1 ){
+            fullUser.setUfps_analyst(1);
+        }
+        try {
+            fullUser.setLogin(LoginGenerate.generateLogin(fullUser.getName()));
+        } catch (Exception e){
+            System.out.println(e.getMessage() + "for user with name = " + fullUser.getName());
+        }
 
-                fullUser.setLogin(LoginGenerate.generateLogin(user.getName()));
-                    /*
-                    TO-Do indexs_OPS parsing for OPS-responsible for the second excel document of another program
-                     */
-                    fullUser.setIndexs_OPS(user.getIndexs_OPS());
         fullUsers.add(fullUser);
     }
 

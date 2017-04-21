@@ -11,7 +11,7 @@ public class Main {
 
         GetDepartmentInfo.getDepartment(); //заполняем листы департаментов и их индексов
 
-        File folder = new File("C:\\Users\\AGoryuchkina\\Desktop\\fileFolder1");
+        File folder = new File("C:\\some_folder");
         File[] folderEntries = folder.listFiles();
         for (File entry : folderEntries) {
             System.out.println(entry.getName());
